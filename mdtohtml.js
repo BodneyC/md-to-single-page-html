@@ -17,7 +17,7 @@ const processImg = (dom, dir, external) => {
       data = request('GET', img.src).body
     } else {
       if (/^https?:\/\//.test(dir))
-        data = request('GET', dir + img.src).body
+        data = request('GET', dir + '/' + img.src).body
       else
         data = fs.readFileSync(path.join(dir, img.src))
     }
