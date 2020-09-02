@@ -92,7 +92,7 @@ const processArgs = args => {
   const getRscPath = f => path.join(__dirname, 'rsc', f)
   return {
     input:    args.input  || getRscPath('example.md'),
-    output:   args.output || `${path.basename(args.input) || getRscPath('input.md')}.html`,
+    output:   args.output || `${args.input ? path.basename(args.input) : getRscPath('input.md')}.html`,
     css:      args.css    || getRscPath('gh.css'),
     beautify: args.beautify,
     external: args.external,
