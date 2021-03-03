@@ -49,7 +49,20 @@ const getInput = input => {
   ]
 }
 
+const processArgs = args => {
+  if (args.help) showHelp(args)
+  const getRscPath = f => path.join(__dirname, 'rsc', f)
+  return {
+    input:    args.input  || getRscPath('example.md'),
+    output:   args.output || `${args.input ? path.basename(args.input) : getRscPath('input.md')}.html`,
+    css:      args.css    || getRscPath('gh.css'),
+    beautify: args.beautify,
+    external: args.external,
+  }
+}
+
 const main = args => {
+  args = processArgs(args)
   let [ input, dir ] = getInput(args.input)
   let dom = new JSDOM(require('marked')(input))
   processImg(dom, dir, args.external)
@@ -87,20 +100,8 @@ ${green('Options')}:
   process.exit(0)
 }
 
-const processArgs = args => {
-  if (args.help) showHelp(args)
-  const getRscPath = f => path.join(__dirname, 'rsc', f)
-  return {
-    input:    args.input  || getRscPath('example.md'),
-    output:   args.output || `${args.input ? path.basename(args.input) : getRscPath('input.md')}.html`,
-    css:      args.css    || getRscPath('gh.css'),
-    beautify: args.beautify,
-    external: args.external,
-  }
-}
-
 if (require.main === module)
-  main(processArgs(require('minimist')(process.argv.slice(2), {
+  main(require('minimist')(process.argv.slice(2), {
     alias: {
       css: 's',
       help: 'h',
@@ -109,4 +110,6 @@ if (require.main === module)
       external: 'e',
       beautify: 'b',
     }
-  })))
+  }))
+
+module.exports = main
