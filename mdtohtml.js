@@ -42,7 +42,7 @@ const addStyle = (dom, css, external) => {
 
 const getInput = input => {
   if (/^https?:\/\//.test(input))
-    return [ request('GET', input).body.toString(), path.dirname(input) ]
+    return [request('GET', input).body.toString(), path.dirname(input)]
   return [
     fs.readFileSync(input, 'utf8'),
     path.dirname(fs.realpathSync(input))
@@ -53,20 +53,26 @@ const processArgs = args => {
   if (args.help) showHelp(args)
   const getRscPath = f => path.join(__dirname, 'rsc', f)
   return {
-    input:    args.input  || getRscPath('example.md'),
-    output:   args.output || `${args.input ? path.basename(args.input) : getRscPath('input.md')}.html`,
-    css:      args.css    || getRscPath('gh.css'),
+    input: args.input || getRscPath('example.md'),
+    output: args.output || `${args.input ? path.basename(args.input) : getRscPath('input.md')}.html`,
+    css: args.css || getRscPath('gh.css'),
     beautify: args.beautify,
+    footer: !args['no-footer'],
     external: args.external,
   }
 }
 
 const main = args => {
   args = processArgs(args)
-  let [ input, dir ] = getInput(args.input)
+  let [input, dir] = getInput(args.input)
   let dom = new JSDOM(require('marked')(input))
   processImg(dom, dir, args.external)
   addStyle(dom, args.css, args.external)
+  if (args.footer) {
+    let doc = dom.window.document
+    doc.body.appendChild(doc.createElement('br'))
+    doc.body.appendChild(doc.createElement('br'))
+  }
   let out = dom.serialize()
   if (args.beautify)
     out = require('js-beautify').html(out, { indent_size: 2 })
@@ -91,11 +97,13 @@ ${blue('[')}${yellow('--beautify')}${blue(']')} \\
 
 ${green('Options')}:
 
-    ${yellow('-h')}${blue('|')}${yellow('--help')}     Show this help section
-    ${yellow('-i')}${blue('|')}${yellow('--input')}    Input filename
-    ${yellow('-o')}${blue('|')}${yellow('--output')}   Output filename
-    ${yellow('-s')}${blue('|')}${yellow('--css')}      CSS filename or URL
-    ${yellow('-e')}${blue('|')}${yellow('--external')} Download external images
+    ${yellow('-h')}${blue('|')}${yellow('--help')}         Show this help section
+    ${yellow('-i')}${blue('|')}${yellow('--input')}        Input filename
+    ${yellow('-o')}${blue('|')}${yellow('--output')}       Output filename
+    ${yellow('-s')}${blue('|')}${yellow('--css')}          CSS filename or URL
+    ${yellow('-e')}${blue('|')}${yellow('--external')}     Download external images
+    ${yellow('-b')}${blue('|')}${yellow('--beautify')}     Beautify the resulting HTML
+    ${yellow('--nof')}${blue('|')}${yellow('--no-footer')} Do not add two ${red('<br>')}s to the bottom of the doc
   `)
   process.exit(0)
 }
@@ -109,6 +117,7 @@ if (require.main === module)
       output: 'o',
       external: 'e',
       beautify: 'b',
+      'no-footer': 'nof',
     }
   }))
 
