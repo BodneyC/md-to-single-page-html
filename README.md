@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD013 -->
-
 # MD to Single Page HTML
 
 Due to several limitations at work, I'm unable to install and use Chromium headless or PhantomJS as a dependency of another package to tranform markdown to PDFs. I've also tried Pandoc with WkHtmlToPdf and getting it to work cleanly maintaining links and adding CSS has been a pain.
@@ -16,7 +14,7 @@ Markdown to Single HTML Page
 
 Usage:
 
-    mdtohtml [-i <file>] [-o <file>] [--external] [--beautify] [-s <stylesheet>]
+    mdtohtml [-i <file>] [-o <file>] [--external] [--beautify] [-s <stylesheet>] [input [output]]
 
 Options:
 
@@ -26,3 +24,5 @@ Options:
     -s|--css      CSS filename or URL
     -e|--external Download external images
 ```
+
+<!-- markdownlint-disable-file MD013 -->

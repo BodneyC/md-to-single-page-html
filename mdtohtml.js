@@ -52,9 +52,16 @@ const getInput = input => {
 const processArgs = args => {
   if (args.help) showHelp(args)
   const getRscPath = f => path.join(__dirname, 'rsc', f)
+  const input = args._.length > 0 ? args._[0] : args.input
+  if (!input) {
+    console.error('No input provided')
+    process.exit(1)
+  }
+  const output = (args._.length > 1 ? args._[1] : args.output)
+    || (input.substr(0, input.lastIndexOf(".")) || input) + '.html'
   return {
-    input: args.input || getRscPath('example.md'),
-    output: args.output || `${args.input ? path.basename(args.input) : getRscPath('input.md')}.html`,
+    input,
+    output,
     css: args.css || getRscPath('gh.css'),
     beautify: args.beautify,
     footer: !args['no-footer'],
@@ -65,7 +72,7 @@ const processArgs = args => {
 const main = args => {
   args = processArgs(args)
   let [input, dir] = getInput(args.input)
-  let dom = new JSDOM(require('marked')(input))
+  let dom = new JSDOM(require('marked').parse(input))
   processImg(dom, dir, args.external)
   addStyle(dom, args.css, args.external)
   if (args.footer) {
