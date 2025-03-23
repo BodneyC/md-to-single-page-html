@@ -8,6 +8,16 @@ const fs = require('fs')
 const path = require('path')
 const mime = require('mime-types')
 
+const addHeaderAnchors = (dom) => {
+  for (const header of dom.window.document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+    const id = header.innerHTML.toLowerCase()
+      .replace(/[?]/, '')
+      .replace(/[()"']/, '')
+      .replace(/[^a-z0-9]/gmi, '-')
+    header.id = id
+  }
+}
+
 const processImg = (dom, dir, external) => {
   for (const img of dom.window.document.querySelectorAll('img')) {
     let data = null
@@ -58,7 +68,7 @@ const processArgs = args => {
     process.exit(1)
   }
   const output = (args._.length > 1 ? args._[1] : args.output)
-    || (input.substr(0, input.lastIndexOf(".")) || input) + '.html'
+    || (input.substr(0, input.lastIndexOf('.')) || input) + '.html'
   return {
     input,
     output,
@@ -74,6 +84,7 @@ const main = args => {
   let [input, dir] = getInput(args.input)
   let dom = new JSDOM(require('marked').parse(input))
   processImg(dom, dir, args.external)
+  addHeaderAnchors(dom)
   addStyle(dom, args.css, args.external)
   if (args.footer) {
     let doc = dom.window.document
